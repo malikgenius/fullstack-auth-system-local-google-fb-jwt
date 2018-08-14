@@ -23,6 +23,7 @@ router.post('/register', (req, res) => {
         .status(400)
         .json({ Email: 'Email is already Used for other Account ' });
     }
+    // check User in model, there is method implemented to seperate local/google/fb users, we add method:"local" with new user.
     const newUser = new User({
       method: 'local',
       local: {
@@ -32,6 +33,7 @@ router.post('/register', (req, res) => {
         photo
       }
     });
+    // lets encrypt our password with bcrypt, always use newUser.local.xxxxx to reach nested user property in local.
     bcrypt.genSalt(10, (err, salt) => {
       bcrypt.hash(newUser.local.password, salt, (err, hash) => {
         if (err) throw err;
@@ -60,7 +62,7 @@ router.post('/login', (req, res) => {
   const { email, password } = req.body;
   // Joi Validation
   loginValidation(req.body, res);
-  // Find User with Email and Password from User Model.
+  // mongoose find for nested property will be defined like User.findOne({"local.email"}) to match email
   User.findOne({ 'local.email': email }).then(user => {
     if (!user) {
       return res.send(404).json({ Error: 'User not Found' });
@@ -71,12 +73,16 @@ router.post('/login', (req, res) => {
         if (isMatch) {
           // Json web Token --- Creation ---- Create a payload which includes all the required info.
           const payload = {
+            // id of user is not nested but other properties are ... add method as well to seperate local users in frontEnd
+            // for password reset link. if user is local provide it password reset link, and send email verification link as well.
             id: user.id,
+            method: user.method,
             name: user.local.name,
             email: user.local.email,
             photo: user.local.photo
           };
           jwt.sign(payload, secretOrKey, { expiresIn: '24h' }, (err, token) => {
+            console.log({ token: 'Bearer ' + token });
             res.json({ token: 'Bearer ' + token });
           });
         } else {
@@ -89,4 +95,13 @@ router.post('/login', (req, res) => {
   });
 });
 
+// current_user Route
+// @ Private Route
+router.get(
+  '/current_user',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    res.json(req.user);
+  }
+);
 module.exports = router;

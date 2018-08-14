@@ -15,6 +15,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(morgan('combined'));
 app.use(passport.initialize());
 
+//Passport Jwt Strategy, Google & Facebook
+require('./passport/passport-local');
+
 // CORS Allowed, if app sends request to thirdparty we need CORS or will get an error.
 app.use(function(req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
