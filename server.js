@@ -3,6 +3,8 @@ const app = express();
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const passport = require('passport');
+// Routes Imports
+const users = require('./routes/api/users');
 
 // mongodb load on startup
 require('./mongodb/mongodb');
@@ -28,6 +30,7 @@ app.get('/', (req, res) => {
   res.json('YOU GOT ROOT');
 });
 // Routes
+app.use('/api/users', users);
 
 const port = process.env.PORT || 5000;
 const Environment = process.env.NODE_ENV;
