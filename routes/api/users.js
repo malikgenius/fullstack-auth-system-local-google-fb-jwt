@@ -95,13 +95,77 @@ router.post('/login', (req, res) => {
   });
 });
 
-// current_user Route
-// @ Private Route
-router.get(
-  '/current_user',
-  passport.authenticate('jwt', { session: false }),
+// Google 0auth Token Login ---- passport-google-plus-token Strategy
+//https://developers.google.com/oauthplayground   to get access_token for testing.
+router.post(
+  '/google',
+  passport.authenticate('googleToken', { session: false }),
   (req, res) => {
-    res.json(req.user);
+    // return console.log(req.user);
+    // jwt Token creation
+    const payload = {
+      id: req.user._id,
+      method: req.user.method,
+      name: req.user.google.name,
+      email: req.user.google.email,
+      photo: req.user.google.photo,
+      date: req.user.date
+    };
+    // return console.log(payload);
+    const token = jwt.sign(
+      payload,
+      secretOrKey,
+      { expiresIn: '24h' },
+      (err, token) => {
+        console.log({ token: 'Bearer ' + token });
+        res.json({ token: 'Bearer ' + token });
+      }
+    );
   }
 );
+// Facebook 0auth Token Login ---- passport-google-plus-token Strategy
+// https://developers.facebook.com/tools/explorer   access_token with email
+// https://developers.facebook.com/tools/accesstoken/ --- only access_token for testing.
+// check facebook access_token in header Key: Authorization and Value: Bearer + token ... it doesnt work the way as google in body ..
+router.post(
+  '/facebook',
+  passport.authenticate('facebook-token', { session: false }),
+  (req, res) => {
+    // jwt Token creation
+    const payload = {
+      id: req.user._id,
+      method: req.user.method,
+      name: req.user.facebook.name,
+      email: req.user.facebook.email,
+      photo: req.user.facebook.photo,
+      date: req.user.date
+    };
+    // return console.log(payload);
+    const token = jwt.sign(
+      payload,
+      secretOrKey,
+      { expiresIn: '24h' },
+      (err, token) => {
+        console.log({ token: 'Bearer ' + token });
+        res.json({ token: 'Bearer ' + token });
+      }
+    );
+  }
+);
+// current_user Route
+// @ Private Route
+// check all the passport authentications at once, if user is local it will log it in via local, if google will go through google or facebook.
+router.get(
+  '/current_user',
+  // Mulitple passport.authentication methods.
+  passport.authenticate(['jwt', 'googleToken', 'facebook-token'], {
+    session: false
+  }),
+  // passport.authenticate('googleToken', { session: false }),
+  (req, res) => {
+    console.log('req.user', req.user);
+    res.json({ user: 'Top Secret Docs only for Authenticated Users.' });
+  }
+);
+
 module.exports = router;

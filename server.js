@@ -16,7 +16,7 @@ app.use(morgan('combined'));
 app.use(passport.initialize());
 
 //Passport Jwt Strategy, Google & Facebook
-require('./passport/passport-local');
+require('./passport/passport');
 
 // CORS Allowed, if app sends request to thirdparty we need CORS or will get an error.
 app.use(function(req, res, next) {
@@ -37,7 +37,7 @@ app.use('/api/users', users);
 
 const port = process.env.PORT || 5000;
 const Environment = process.env.NODE_ENV;
-console.log(Environment);
+// console.log(Environment);
 app.listen(port, err => {
   if (err) {
     return console.log(`Error: ${err}`);

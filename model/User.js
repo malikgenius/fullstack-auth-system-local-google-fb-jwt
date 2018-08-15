@@ -8,14 +8,17 @@ const UserSchema = Schema({
     enum: ['local', 'google', 'facebook'],
     require: true
   },
+  date: {
+    type: Date,
+    default: Date.now
+  },
   local: {
+    //cant say its required, as if user logins with Google or fb, it will though error.
     name: {
-      type: String,
-      required: true
+      type: String
     },
     email: {
       type: String,
-      required: true,
       lowercase: true
     },
     password: {
@@ -23,14 +26,13 @@ const UserSchema = Schema({
     },
     photo: {
       type: String
-    },
-    date: {
-      type: Date,
-      default: Date.now
     }
   },
   google: {
     id: {
+      type: String
+    },
+    name: {
       type: String
     },
     email: {
@@ -43,6 +45,9 @@ const UserSchema = Schema({
   },
   facebook: {
     id: {
+      type: String
+    },
+    name: {
       type: String
     },
     email: {
