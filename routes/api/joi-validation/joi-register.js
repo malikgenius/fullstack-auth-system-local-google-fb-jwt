@@ -4,7 +4,7 @@ module.exports = function registerValidation(data, res) {
   const { name, email, password, photo } = data;
   const schema = {
     name: Joi.string()
-      .regex(/^[a-zA-Z-0-9]{3,30}$/)
+      .regex(/^[a-zA-Z-0-9_ ]{3,30}$/)
       .min(3)
       .max(50)
       .required(),
@@ -19,6 +19,6 @@ module.exports = function registerValidation(data, res) {
 
   const Validate = Joi.validate(data, schema);
   if (Validate.error) {
-    res.status(400).send(Validate.error.details[0].message);
+    return res.status(400).send(Validate.error.details[0].message);
   }
 };

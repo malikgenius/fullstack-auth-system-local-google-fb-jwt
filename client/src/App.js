@@ -1,19 +1,24 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
+import createHistory from 'history/createBrowserHistory';
+import GoogleOauth from './Login/GoogleOauth';
+import FacebookOauth from './Login/FacebookOauth';
+import BootStrapLogin from './Login/bootStrapSocialLogin';
+import BootStrapLogin2 from './Login/bootStrapSocialLogin2';
+import BootStrapSignUp2 from './Login/bootStrapSignUp2';
+export const history = createHistory();
 
 class App extends Component {
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-      </div>
+      <Router>
+        <div>
+          <Route exact path="/" component={BootStrapLogin2} />
+          <Route path="/signup" component={BootStrapSignUp2} />
+          <Route path="/facebook" component={FacebookOauth} />
+          <Route path="/google" component={GoogleOauth} />
+        </div>
+      </Router>
     );
   }
 }

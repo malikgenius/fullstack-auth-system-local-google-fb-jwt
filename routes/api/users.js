@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const Joi = require('joi');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const JwtStrategy = require('passport-jwt').Strategy;
@@ -14,7 +15,28 @@ const loginValidation = require('./joi-validation/joi-login');
 router.post('/register', (req, res) => {
   const { name, email, password, photo } = req.body;
   // Joi Validation
-  registerValidation(req.body, res);
+  // const { name, email, password, photo } = data;
+  const schema = {
+    name: Joi.string()
+      .regex(/^[a-zA-Z-0-9_ ]{3,30}$/)
+      .min(3)
+      .max(50)
+      .required(),
+    email: Joi.string()
+      .email()
+      .required(),
+    password: Joi.string()
+      .regex(/^[a-zA-Z-0-9]{6,50}$/)
+      .required(),
+    photo: Joi.string()
+  };
+
+  const Validate = Joi.validate(req.body, schema);
+  if (Validate.error) {
+    return res.status(400).send(Validate.error.details[0].message);
+  }
+
+  // registerValidation(req.body, res);
   // lets find if user already exist. we have local model Schema nested in local { }. for nested search needs commas i.e "local.email"
   // check this youtube channel videos for more details on full auth with JWT 4 local, google and fb. https://www.youtube.com/watch?v=zx6jnaLuB9Q&list=PLSpJkDDmpFZ7GowbJE-mvX09zY9zfYatI
   User.findOne({ 'local.email': email }).then(user => {
@@ -99,7 +121,7 @@ router.post('/login', (req, res) => {
 //https://developers.google.com/oauthplayground   to get access_token for testing.
 router.post(
   '/google',
-  passport.authenticate('googleToken', { session: false }),
+  passport.authenticate('google-plus-token', { session: false }),
   (req, res) => {
     // return console.log(req.user);
     // jwt Token creation
@@ -158,7 +180,7 @@ router.post(
 router.get(
   '/current_user',
   // Mulitple passport.authentication methods.
-  passport.authenticate(['jwt', 'googleToken', 'facebook-token'], {
+  passport.authenticate(['jwt', 'google-plus-token', 'facebook-token'], {
     session: false
   }),
   // passport.authenticate('googleToken', { session: false }),

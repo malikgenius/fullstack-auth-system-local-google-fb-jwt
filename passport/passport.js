@@ -5,8 +5,8 @@ const GooglePlusTokenStrategy = require('passport-google-plus-token');
 const FacebookTokenStrategy = require('passport-facebook-token');
 const mongoose = require('mongoose');
 const secretOrKey = require('../config/Keys').secretOrKey;
-const clientID = require('../config/Keys').googleClientID;
-const clientSecret = require('../config/Keys').googleClientSecret;
+const clientID = require('../config/Keys').googleClientID2;
+const clientSecret = require('../config/Keys').googleClientSecret2;
 const facebookclientID = require('../config/Keys').facebookClientID;
 const facebookclientSecret = require('../config/Keys').facebookClientSecret;
 const User = require('../model/User');
@@ -32,17 +32,18 @@ passport.use(
 
 // Google token strategy.
 passport.use(
-  'googleToken',
+  // 'googleToken',
   new GooglePlusTokenStrategy(
     {
       clientID,
-      clientSecret,
-      callbackURL: '/api/users/google',
-      proxy: true
+      clientSecret
+      // passReqToCallback: true
+      // callbackURL: '/api/users/google'
+      // proxy: true
     },
     async (accessToken, refreshToken, profile, done) => {
-      // console.log('accessToken', accessToken);
-      // console.log('profile', profile);
+      console.log('accessToken', accessToken);
+      console.log('profile', profile);
       // Getting the Large Image substracting end part.
       const photo = profile.photos[0].value.substring(
         0,
@@ -77,9 +78,9 @@ passport.use(
   new FacebookTokenStrategy(
     {
       clientID: facebookclientID,
-      clientSecret: facebookclientSecret,
-      callbackURL: '/api/users/facebook/callback',
-      proxy: true
+      clientSecret: facebookclientSecret
+      // callbackURL: '/api/users/facebook/callback',
+      // proxy: true
     },
     async (accessToken, refreshToken, profile, done) => {
       // console.log('accessToken', accessToken);
@@ -97,7 +98,7 @@ passport.use(
             id: profile.id,
             name: profile.displayName,
             email: profile.emails[0].value,
-            photo
+            photo: profile.photos[0].value
           }
         });
         await newUser.save();

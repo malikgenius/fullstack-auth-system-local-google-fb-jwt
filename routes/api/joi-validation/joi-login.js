@@ -13,6 +13,6 @@ module.exports = function loginValidation(data, res) {
 
   const Validate = Joi.validate(data, schema);
   if (Validate.error) {
-    res.status(400).send(Validate.error.details[0].message);
+    return res.status(400).send(Validate.error.details[0].message);
   }
 };

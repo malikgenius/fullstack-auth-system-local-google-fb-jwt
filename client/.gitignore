@@ -8,6 +8,8 @@
 
 # production
 /build
+/etc/config
+
 
 # misc
 .DS_Store
