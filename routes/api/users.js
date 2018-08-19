@@ -5,6 +5,12 @@ const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const JwtStrategy = require('passport-jwt').Strategy;
 const jwt = require('jsonwebtoken');
+const randomstring = require('randomstring');
+//Email nodemailer config
+const nodemailer = require('nodemailer');
+const emailUser = require('../../config/Keys').emailUser;
+const emailPass = require('../../config/Keys').emailPass;
+
 const User = require('../../model/User');
 const secretOrKey = require('../../config/Keys').secretOrKey;
 const registerValidation = require('./joi-validation/joi-register');
@@ -60,14 +66,60 @@ router.post('/register', (req, res) => {
       bcrypt.hash(newUser.local.password, salt, (err, hash) => {
         if (err) throw err;
         newUser.local.password = hash;
+        // Generate Verification Email Token to be saved in DB. will send this to user via Email.
+        const secretToken = randomstring.generate();
+        newUser.local.secretToken = secretToken;
+        // Active Property False, till the user verify email.
+        newUser.local.active = false;
+
         newUser
           .save()
           .then(user => {
-            res.json({
-              name: user.local.name,
-              email: user.local.email,
-              id: user.id,
-              photo: user.local.photo
+            // create reusable transporter object using the default SMTP transport
+            let transporter = nodemailer.createTransport({
+              host: 'smtp.office365.com',
+              port: 587,
+              // secure: false, // true for 465, false for other ports
+              auth: {
+                user: emailUser, // generated ethereal user
+                pass: emailPass, // generated ethereal password
+                requireTLS: true
+              },
+              tls: {
+                ciphers: 'SSLv3'
+              }
+            });
+
+            const { name, email, secretToken } = user.local;
+            // Send verification Email to Users email address.
+            let mailOptions = {
+              from: '"ZEELIST" <pooja@zeenah.com>', // sender address
+              to: email, // list of receivers
+              subject: 'Verify Your Account', // Subject line
+              text: `Hello ${name}`, // plain text body
+              html: `<br/>
+                Thank you for registring ${name}!
+                <br/><br/>
+                Please verify your email,  copy following access token:
+                <br/>
+                Token: <b>${secretToken}</b>
+                <br/>
+                now click on the link below and paste this access token in verification page where asked. 
+                <a href="https://localhost:3000/verifytoken">click here to open verification link</a>
+                </br></br>
+                `
+            };
+
+            transporter.sendMail(mailOptions, (error, info) => {
+              if (error) {
+                return console.log(error);
+              }
+              console.log('Message sent: %s', info.messageId);
+              // Preview only available when sending through an Ethereal account
+              console.log(
+                'Preview URL: %s',
+                nodemailer.getTestMessageUrl(info)
+              );
             });
           })
           .catch(err => {
@@ -89,6 +141,7 @@ router.post('/login', (req, res) => {
     if (!user) {
       return res.send(404).json({ Error: 'User not Found' });
     }
+
     bcrypt
       .compare(password, user.local.password)
       .then(isMatch => {
@@ -103,9 +156,17 @@ router.post('/login', (req, res) => {
             email: user.local.email,
             photo: user.local.photo
           };
+          // check if users Email is verified or not, if not return error to frontend. false property is === !
+          if (!user.local.active) {
+            return res.status(400).json({
+              Inactive:
+                'User`s Email is not verified, Please verify eamil to access account.'
+            });
+          }
+
           jwt.sign(payload, secretOrKey, { expiresIn: '24h' }, (err, token) => {
             console.log({ token: 'Bearer ' + token });
-            res.json({ token: 'Bearer ' + token });
+            return res.json({ token: 'Bearer ' + token });
           });
         } else {
           res.status(400).json({ password: 'wrong password' });
@@ -114,6 +175,27 @@ router.post('/login', (req, res) => {
       .catch(err => {
         console.log(err);
       });
+  });
+});
+
+// Verify Local Users with secretToken
+router.post('/verifytoken', (req, res) => {
+  const verifyToken = req.body.token;
+  User.findOne({ 'local.secretToken': verifyToken.trim() }).then(user => {
+    if (!user) {
+      return res
+        .status(400)
+        .json('Invalid or Expired verification Token code.');
+      // return res.redirect('https://localhost:3000');
+    }
+    user.local.active = true;
+    user.local.secretToken = '';
+    user.save().then(
+      // res.redirect('https://localhost:3000')
+      res.json({
+        success: 'Thank you for verifying your email, you may Login now'
+      })
+    );
   });
 });
 

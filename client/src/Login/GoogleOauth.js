@@ -24,7 +24,7 @@ const GoogleOauth = () => {
 
   return (
     <div className="container">
-      <div class="alert alert-light" role="alert">
+      <div className="alert alert-light" role="alert">
         Popup will take you to Google Login page, if you dont see any popup
         please Click on link below.
       </div>

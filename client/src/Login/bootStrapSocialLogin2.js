@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import './bootStrapSocialLogin2.css';
+import './bootStrapLogin2.css';
 import FacebookLogin from 'react-facebook-login';
 import GoogleLogin from 'react-google-login';
 import clientId from '../config/Keys';
@@ -31,7 +31,7 @@ class BootStrapLogin2 extends Component {
     axios
       .post('/api/users/login', { email: User.email, password: User.password })
       .then(res => {
-        console.log(res.data);
+        console.log(res);
       })
       .catch(err => {
         console.log({ error: err });
@@ -40,23 +40,23 @@ class BootStrapLogin2 extends Component {
 
   render() {
     // Facebook Response function to get Token and forward to API.
-    const responseFacebook = response => {
-      const access_token = response.accessToken;
-      // console.log(JSON.stringify({ access_token: responseFacebook }));
-      axios.post('/api/users/facebook', { access_token }).then(res => {
-        console.log('AXIOS RES', res);
-      });
-    };
+    // const responseFacebook = response => {
+    //   const access_token = response.accessToken;
+    //   // console.log(JSON.stringify({ access_token: responseFacebook }));
+    //   axios.post('/api/users/facebook', { access_token }).then(res => {
+    //     console.log('AXIOS RES', res);
+    //   });
+    // };
 
-    const responseGoogle = response => {
-      console.log(response);
-      const access_token = response.Zi.access_token;
-      console.log(JSON.stringify({ access_token: access_token }));
-      console.log(access_token);
-      axios.post('/api/users/google', { access_token }).then(res => {
-        console.log(res);
-      });
-    };
+    // const responseGoogle = response => {
+    //   console.log(response);
+    //   const access_token = response.Zi.access_token;
+    //   console.log(JSON.stringify({ access_token: access_token }));
+    //   console.log(access_token);
+    //   axios.post('/api/users/google', { access_token }).then(res => {
+    //     console.log(res);
+    //   });
+    // };
 
     return (
       <div>

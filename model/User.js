@@ -26,6 +26,12 @@ const UserSchema = Schema({
     },
     photo: {
       type: String
+    },
+    secretToken: {
+      type: String
+    },
+    active: {
+      type: Boolean
     }
   },
   google: {

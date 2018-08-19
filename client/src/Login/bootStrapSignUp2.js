@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import './bootStrapSocialLogin2.css';
+import './bootStrapLogin2.css';
 import FacebookLogin from 'react-facebook-login';
 import GoogleLogin from 'react-google-login';
 import clientId from '../config/Keys';
@@ -158,7 +158,7 @@ class BootStrapSignUp2 extends Component {
             </div>
           </form>
           <div className="text-center small">
-            Already have an account? <Link to="/">Login Here</Link>
+            Already have an account? <Link to="/">Log in</Link>
           </div>
         </div>
       </div>
