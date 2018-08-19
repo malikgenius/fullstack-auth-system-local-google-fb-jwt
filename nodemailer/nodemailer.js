@@ -15,23 +15,23 @@ tls: {
 }
 
 // setup email data with unicode symbols
-// let mailOptions = {
-//   from: '"ZEELIST" <linuxgen2016@gmail.com>', // sender address
-//   to: email, // list of receivers
-//   subject: 'Verify Your Account', // Subject line
-//   text: `Hello ${name}`, // plain text body
-//   html: `<b/>
-//     Thank you for registring!
-//     <b/><b/>
-//     Please verify your email,  copy following access token:
-//     <b/>
-//     Token: <b>${accessToken}</b>
-//     <b/>
-//     now click on the link below and paste this access token in verification page where asked.
-//     <a href:"https://localhost:3000/verifytoken">click here to open verification link</a>
+let mailOptions = {
+  from: '"ZEELIST" <linuxgen2016@gmail.com>', // sender address
+  to: email, // list of receivers
+  subject: 'Verify Your Account', // Subject line
+  text: `Hello ${name}`, // plain text body
+  html: `<b/>
+    Thank you for registring!
+    <b/><b/>
+    Please verify your email,  copy following access token:
+    <b/>
+    Token: <b>${accessToken}</b>
+    <b/>
+    now click on the link below and paste this access token in verification page where asked.
+    <a href:"https://localhost:3000/verifytoken">click here to open verification link</a>
 
-//     `
-// };
+    `
+};
 
 // send mail with defined transport object
 module.exports = transporter.senfdMail(mailOptions, (error, info) => {

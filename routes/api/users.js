@@ -39,7 +39,7 @@ router.post('/register', (req, res) => {
 
   const Validate = Joi.validate(req.body, schema);
   if (Validate.error) {
-    return res.status(400).send(Validate.error.details[0].message);
+    return res.status(400).json(Validate.error.details[0].message);
   }
 
   // registerValidation(req.body, res);
@@ -47,9 +47,7 @@ router.post('/register', (req, res) => {
   // check this youtube channel videos for more details on full auth with JWT 4 local, google and fb. https://www.youtube.com/watch?v=zx6jnaLuB9Q&list=PLSpJkDDmpFZ7GowbJE-mvX09zY9zfYatI
   User.findOne({ 'local.email': email }).then(user => {
     if (user) {
-      return res
-        .status(400)
-        .json({ Email: 'Email is already Used for other Account ' });
+      return res.status(400).json('Email is already Used for other Account ');
     }
     // check User in model, there is method implemented to seperate local/google/fb users, we add method:"local" with new user.
     const newUser = new User({
@@ -121,6 +119,7 @@ router.post('/register', (req, res) => {
                 nodemailer.getTestMessageUrl(info)
               );
             });
+            return res.json('Success');
           })
           .catch(err => {
             console.log(err);
@@ -135,11 +134,25 @@ router.post('/register', (req, res) => {
 router.post('/login', (req, res) => {
   const { email, password } = req.body;
   // Joi Validation
-  loginValidation(req.body, res);
+  // loginValidation(req.body, res);
+  const schema = {
+    email: Joi.string()
+      .email()
+      .required(),
+    password: Joi.string()
+      .regex(/^[a-zA-Z-0-9]{6,50}$/)
+      .required()
+  };
+
+  const Validate = Joi.validate(req.body, schema);
+  if (Validate.error) {
+    return res.status(400).send(Validate.error.details[0].message);
+  }
+
   // mongoose find for nested property will be defined like User.findOne({"local.email"}) to match email
   User.findOne({ 'local.email': email }).then(user => {
     if (!user) {
-      return res.send(404).json({ Error: 'User not Found' });
+      return res.status(404).json('User not Found');
     }
 
     bcrypt
@@ -154,22 +167,25 @@ router.post('/login', (req, res) => {
             method: user.method,
             name: user.local.name,
             email: user.local.email,
-            photo: user.local.photo
+            photo: user.local.photo,
+            secretToken: user.local.secretToken,
+            active: user.local.active
           };
           // check if users Email is verified or not, if not return error to frontend. false property is === !
           if (!user.local.active) {
-            return res.status(400).json({
-              Inactive:
-                'User`s Email is not verified, Please verify eamil to access account.'
-            });
+            return res
+              .status(400)
+              .json(
+                `unverified email, go to https://localhost:3000/verifytoken to verify your token</a>`
+              );
           }
 
           jwt.sign(payload, secretOrKey, { expiresIn: '24h' }, (err, token) => {
             console.log({ token: 'Bearer ' + token });
-            return res.json({ token: 'Bearer ' + token });
+            return res.json('Bearer ' + token);
           });
         } else {
-          res.status(400).json({ password: 'wrong password' });
+          res.status(400).json('wrong password');
         }
       })
       .catch(err => {
@@ -192,9 +208,7 @@ router.post('/verifytoken', (req, res) => {
     user.local.secretToken = '';
     user.save().then(
       // res.redirect('https://localhost:3000')
-      res.json({
-        success: 'Thank you for verifying your email, you may Login now'
-      })
+      res.json('Thank you for verifying your email, you may Login now')
     );
   });
 });
@@ -221,8 +235,8 @@ router.post(
       secretOrKey,
       { expiresIn: '24h' },
       (err, token) => {
-        console.log({ token: 'Bearer ' + token });
-        res.json({ token: 'Bearer ' + token });
+        console.log('Bearer ' + token);
+        res.json('Bearer ' + token);
       }
     );
   }
@@ -251,7 +265,7 @@ router.post(
       { expiresIn: '24h' },
       (err, token) => {
         console.log({ token: 'Bearer ' + token });
-        res.json({ token: 'Bearer ' + token });
+        res.json('Bearer ' + token);
       }
     );
   }
@@ -268,7 +282,7 @@ router.get(
   // passport.authenticate('googleToken', { session: false }),
   (req, res) => {
     console.log('req.user', req.user);
-    res.json({ user: 'Top Secret Docs only for Authenticated Users.' });
+    res.json('Top Secret Docs only for Authenticated Users.');
   }
 );
 

@@ -1,11 +1,8 @@
 import React, { Component } from 'react';
-import './bootStrapLogin2.css';
-import FacebookLogin from 'react-facebook-login';
-import GoogleLogin from 'react-google-login';
-import clientId from '../config/Keys';
-import googleClientId from '../config/Keys';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import classnames from 'classnames';
+import './bootStrapLogin2.css';
 
 class BootStrapSignUp2 extends Component {
   constructor() {
@@ -15,10 +12,8 @@ class BootStrapSignUp2 extends Component {
       email: '',
       password: '',
       password2: '',
-      errors: {}
+      errors: ''
     };
-    // this.onChange = this.onChange.bind(this);
-    // this.onSubmit = this.onSubmit.bind(this);
   }
 
   onChange = e => {
@@ -43,36 +38,20 @@ class BootStrapSignUp2 extends Component {
         password: newUser.password
       })
       .then(res => {
-        console.log(res);
+        console.log(res.data);
       })
-      .catch(err => {
-        console.log({ Error: err });
-      });
-    console.log(newUser);
+
+      .catch(err => this.setState({ errors: err.response.data }));
+    // console.log(this.state.errors);
+    // {
+    //   console.log({ errors: err.response.data });
+    // }
+    // );
+    // console.log(newUser);
   };
 
   render() {
-    // Local Auth Function
-
-    // Facebook Response function to get Token and forward to API.
-    const responseFacebook = response => {
-      const access_token = response.accessToken;
-      // console.log(JSON.stringify({ access_token: responseFacebook }));
-      axios.post('/api/users/facebook', { access_token }).then(res => {
-        console.log('AXIOS RES', res);
-      });
-    };
-
-    const responseGoogle = response => {
-      console.log(response);
-      const access_token = response.Zi.access_token;
-      console.log(JSON.stringify({ access_token: access_token }));
-      console.log(access_token);
-      axios.post('/api/users/google', { access_token }).then(res => {
-        console.log(res);
-      });
-    };
-
+    const { errors } = this.state;
     return (
       <div>
         <div className="signin-form">
@@ -145,20 +124,28 @@ class BootStrapSignUp2 extends Component {
                 required="required"
               />
             </div>
+
             <div className="form-group">
               <button
                 type="submit"
                 className="btn btn-success btn-lg btn-block signup-btn"
               >
-                Sign in
+                Sign Up
               </button>
             </div>
+            {this.state.errors ? (
+              <div className="text-center small red" style={{ color: 'red' }}>
+                {this.state.errors}
+              </div>
+            ) : (
+              ''
+            )}
             <div className="text-center small">
               <a href="#">Forgot Your password?</a>
             </div>
           </form>
           <div className="text-center small">
-            Already have an account? <Link to="/">Log in</Link>
+            Already have an account? <Link to="/">Sign in</Link>
           </div>
         </div>
       </div>

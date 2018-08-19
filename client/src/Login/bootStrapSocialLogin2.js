@@ -1,18 +1,16 @@
 import React, { Component } from 'react';
-import './bootStrapLogin2.css';
-import FacebookLogin from 'react-facebook-login';
-import GoogleLogin from 'react-google-login';
-import clientId from '../config/Keys';
-import googleClientId from '../config/Keys';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import classnames from 'classnames';
+import './bootStrapLogin2.css';
 
 class BootStrapLogin2 extends Component {
   constructor() {
     super();
     this.state = {
       email: '',
-      password: ''
+      password: '',
+      errors: ''
     };
   }
 
@@ -31,33 +29,12 @@ class BootStrapLogin2 extends Component {
     axios
       .post('/api/users/login', { email: User.email, password: User.password })
       .then(res => {
-        console.log(res);
+        console.log(res.data);
       })
-      .catch(err => {
-        console.log({ error: err });
-      });
+      .catch(err => this.setState({ errors: err.response.data }));
   };
 
   render() {
-    // Facebook Response function to get Token and forward to API.
-    // const responseFacebook = response => {
-    //   const access_token = response.accessToken;
-    //   // console.log(JSON.stringify({ access_token: responseFacebook }));
-    //   axios.post('/api/users/facebook', { access_token }).then(res => {
-    //     console.log('AXIOS RES', res);
-    //   });
-    // };
-
-    // const responseGoogle = response => {
-    //   console.log(response);
-    //   const access_token = response.Zi.access_token;
-    //   console.log(JSON.stringify({ access_token: access_token }));
-    //   console.log(access_token);
-    //   axios.post('/api/users/google', { access_token }).then(res => {
-    //     console.log(res);
-    //   });
-    // };
-
     return (
       <div>
         <div className="signin-form">
@@ -114,6 +91,13 @@ class BootStrapLogin2 extends Component {
                 Sign in
               </button>
             </div>
+            {this.state.errors ? (
+              <div className="text-center small red" style={{ color: 'red' }}>
+                {this.state.errors}
+              </div>
+            ) : (
+              ''
+            )}
             <div className="text-center small">
               <a href="#">Forgot Your password?</a>
             </div>

@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const passport = require('passport');
 // Routes Imports
 const users = require('./routes/api/users');
+const reset = require('./routes/api/reset');
 
 // mongodb load on startup
 require('./mongodb/mongodb');
@@ -34,6 +35,7 @@ app.get('/', (req, res) => {
 });
 // Routes
 app.use('/api/users', users);
+app.use('/api/reset', reset);
 
 const port = process.env.PORT || 5000;
 const Environment = process.env.NODE_ENV;
