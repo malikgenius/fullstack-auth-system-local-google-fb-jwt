@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import classnames from 'classnames';
+import { connect } from 'react-redux';
+import { registerUser } from '../actions/authAction';
 import './bootStrapLogin2.css';
 
 class BootStrapSignUp2 extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       name: '',
       email: '',
@@ -25,23 +26,29 @@ class BootStrapSignUp2 extends Component {
   onSubmit = e => {
     e.preventDefault();
     console.log(e);
+    // confirm password match test ..
+    if (this.state.password !== this.state.password2) {
+      return this.setState({ errors: 'Passwords do not match' });
+    }
     const newUser = {
       name: this.state.name,
       email: this.state.email,
-      password: this.state.password
+      password: this.state.password,
+      password2: this.state.password2
       //   password2: this.state.password2
     };
-    axios
-      .post('/api/users/register', {
-        name: newUser.name,
-        email: newUser.email,
-        password: newUser.password
-      })
-      .then(res => {
-        console.log(res.data);
-      })
+    this.props.registerUser(newUser);
+    // axios
+    //   .post('/api/users/register', {
+    //     name: newUser.name,
+    //     email: newUser.email,
+    //     password: newUser.password
+    //   })
+    //   .then(res => {
+    //     console.log(res.data);
+    //   })
 
-      .catch(err => this.setState({ errors: err.response.data }));
+    //   .catch(err => this.setState({ errors: err.response.data }));
     // console.log(this.state.errors);
     // {
     //   console.log({ errors: err.response.data });
@@ -52,9 +59,11 @@ class BootStrapSignUp2 extends Component {
 
   render() {
     const { errors } = this.state;
+    const { user } = this.props.auth;
     return (
       <div>
         <div className="signin-form">
+          {user ? user.name : null}
           <form onSubmit={this.onSubmit}>
             <h2>Sign Up</h2>
             <p className="hint-text">Sign in with your social media account</p>
@@ -153,4 +162,13 @@ class BootStrapSignUp2 extends Component {
   }
 }
 
-export default BootStrapSignUp2;
+const mapStateToProps = (state, ownProps) => {
+  return {
+    auth: state.auth
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  { registerUser }
+)(BootStrapSignUp2);
