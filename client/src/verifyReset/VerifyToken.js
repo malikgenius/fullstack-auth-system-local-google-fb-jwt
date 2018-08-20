@@ -7,7 +7,9 @@ class VerificationToken extends Component {
   constructor() {
     super();
     this.state = {
-      token: ''
+      token: '',
+      success: '',
+      errors: ''
     };
   }
 
@@ -25,17 +27,24 @@ class VerificationToken extends Component {
     // return console.log(Token);
     axios
       .post('/api/users/verifytoken', { token: Token.token })
-      .then(res => {
-        console.log(res.data);
-      })
-      .catch(err => {
-        console.log({ error: err });
-      });
+      .then(res => this.setState({ success: res.data }))
+
+      .catch(err => this.setState({ errors: err.response.data }));
   };
 
   render() {
     return (
       <div>
+        {this.state.success && (
+          <div class="alert alert-success" role="alert">
+            {this.state.success}
+            {''}
+            <Link to="/" class="alert-link">
+              click here
+            </Link>
+            . to access your account.
+          </div>
+        )}
         <div className="signin-form">
           <div className="alert alert-light" role="alert" size="large">
             <h4>please check your email for verification Token,</h4>
@@ -61,6 +70,18 @@ class VerificationToken extends Component {
                 Verify
               </button>
             </div>
+
+            {this.state.errors ? (
+              <div className="text-center small red" style={{ color: 'red' }}>
+                {this.state.errors}
+              </div>
+            ) : (
+              ''
+            )}
+
+            {this.state.success && (
+              <div className="text-center small red">{this.state.success}</div>
+            )}
             <div className="text-center small">
               <a href="#">resend verification code</a>
             </div>

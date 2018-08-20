@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import classnames from 'classnames';
 import './bootStrapLogin2.css';
 
 class BootStrapLogin2 extends Component {

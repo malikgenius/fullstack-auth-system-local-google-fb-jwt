@@ -208,7 +208,7 @@ router.post('/verifytoken', (req, res) => {
     user.local.secretToken = '';
     user.save().then(
       // res.redirect('https://localhost:3000')
-      res.json('Thank you for verifying your email, you may Login now')
+      res.json('Thank you for verifying your email, you may Login now ')
     );
   });
 });
