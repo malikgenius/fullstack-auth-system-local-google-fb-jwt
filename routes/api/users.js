@@ -19,7 +19,7 @@ const loginValidation = require('./joi-validation/joi-login');
 // Register Route
 // @ Public Route
 router.post('/register', (req, res) => {
-  const { name, email, password, photo } = req.body;
+  const { name, email, password, password2, photo } = req.body;
   // Joi Validation
   // const { name, email, password, photo } = data;
   const schema = {
@@ -32,6 +32,9 @@ router.post('/register', (req, res) => {
       .email()
       .required(),
     password: Joi.string()
+      .regex(/^[a-zA-Z-0-9]{6,50}$/)
+      .required(),
+    password2: Joi.string()
       .regex(/^[a-zA-Z-0-9]{6,50}$/)
       .required(),
     photo: Joi.string()
@@ -47,9 +50,13 @@ router.post('/register', (req, res) => {
   // check this youtube channel videos for more details on full auth with JWT 4 local, google and fb. https://www.youtube.com/watch?v=zx6jnaLuB9Q&list=PLSpJkDDmpFZ7GowbJE-mvX09zY9zfYatI
   User.findOne({ 'local.email': email }).then(user => {
     if (user) {
-      return res.status(400).json('Email is already Used for other Account ');
+      // 400 status will tell axios that its error, if we changed status code to 200 axios will think all went well.
+      return res.status(400).json('Email is in use for other account');
     }
     // check User in model, there is method implemented to seperate local/google/fb users, we add method:"local" with new user.
+    if (password !== password2) {
+      return res.status(400).json('confirm password do not match');
+    }
     const newUser = new User({
       method: 'local',
       local: {
@@ -175,14 +182,14 @@ router.post('/login', (req, res) => {
           if (!user.local.active) {
             return res
               .status(400)
-              .json(
-                `unverified email, go to https://localhost:3000/verifytoken to verify your token</a>`
-              );
+              .json(`${email} is not verified, please check your mailbox.`);
           }
 
           jwt.sign(payload, secretOrKey, { expiresIn: '24h' }, (err, token) => {
             console.log({ token: 'Bearer ' + token });
-            return res.json('Bearer ' + token);
+            // have to use Object to get its value in localStorage in react, or it will be difficult ..
+            // so token will be the object key and value will be the actual token with Bearer
+            res.json({ token: 'Bearer ' + token });
           });
         } else {
           res.status(400).json('wrong password');
@@ -208,7 +215,7 @@ router.post('/verifytoken', (req, res) => {
     user.local.secretToken = '';
     user.save().then(
       // res.redirect('https://localhost:3000')
-      res.json('Thank you for verifying your email, you may Login now ')
+      res.json('Thank you for verifying your email, you may Login now')
     );
   });
 });
@@ -274,7 +281,7 @@ router.post(
 // @ Private Route
 // check all the passport authentications at once, if user is local it will log it in via local, if google will go through google or facebook.
 router.get(
-  '/current_user',
+  '/dashboard',
   // Mulitple passport.authentication methods.
   passport.authenticate(['jwt', 'google-plus-token', 'facebook-token'], {
     session: false
@@ -282,7 +289,11 @@ router.get(
   // passport.authenticate('googleToken', { session: false }),
   (req, res) => {
     console.log('req.user', req.user);
-    res.json('Top Secret Docs only for Authenticated Users.');
+    res.json(
+      `Hello ${req.user.local.name ||
+        req.user.google.name ||
+        req.user.facebook.name}`
+    );
   }
 );
 

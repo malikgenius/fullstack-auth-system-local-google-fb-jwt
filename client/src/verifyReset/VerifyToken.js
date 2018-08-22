@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
+import { Link, withRouter } from 'react-router-dom';
+import { connect } from 'react-redux';
 import './bootStrapLogin2.css';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { verificationEmail } from '../actions/authAction';
 
 class VerificationToken extends Component {
   constructor() {
@@ -12,6 +14,12 @@ class VerificationToken extends Component {
       errors: ''
     };
   }
+
+  componentWillReceiveProps = nextProps => {
+    if (nextProps.errors) {
+      this.setState({ errors: nextProps.errors.error });
+    }
+  };
 
   onChange = e => {
     const value = e.target.value;
@@ -24,12 +32,15 @@ class VerificationToken extends Component {
     const Token = {
       token: this.state.token
     };
+    // sending to authaction with router history so history.push() will work. Andrew Mead showed different way.
+    // which is to create another component for example tokenpage and this should be tokenform etc ..
+    this.props.verificationEmail(Token, this.props.history);
     // return console.log(Token);
-    axios
-      .post('/api/users/verifytoken', { token: Token.token })
-      .then(res => this.setState({ success: res.data }))
+    // axios
+    //   .post('/api/users/verifytoken', { token: Token.token })
+    //   .then(res => this.setState({ success: res.data }))
 
-      .catch(err => this.setState({ errors: err.response.data }));
+    //   .catch(err => this.setState({ errors: err.response.data }));
   };
 
   render() {
@@ -95,4 +106,14 @@ class VerificationToken extends Component {
   }
 }
 
-export default VerificationToken;
+const mapStateToProps = (state, ownProps) => {
+  return {
+    auth: state.auth,
+    errors: state.errors
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  { verificationEmail }
+)(withRouter(VerificationToken));

@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { loginUser } from '../actions/authAction';
 import './bootStrapLogin2.css';
 
 class BootStrapLogin2 extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+    console.log(props);
     this.state = {
       email: '',
       password: '',
@@ -13,9 +16,23 @@ class BootStrapLogin2 extends Component {
     };
   }
 
+  componentDidMount = () => {
+    if (this.props.auth.isAuthenticated) {
+      this.props.history.push('/dashboard');
+    }
+  };
+
+  componentWillReceiveProps = nextProps => {
+    if (nextProps.auth.isAuthenticated) {
+      this.props.history.push('/dashboard');
+    }
+    if (nextProps.errors) {
+      this.setState({ errors: nextProps.errors.error });
+    }
+  };
   onChange = e => {
     const value = e.target.value;
-    console.log(e.target.value);
+    // console.log(e.target.value);
     this.setState({ [e.target.name]: e.target.value });
   };
 
@@ -25,15 +42,18 @@ class BootStrapLogin2 extends Component {
       email: this.state.email,
       password: this.state.password
     };
-    axios
-      .post('/api/users/login', { email: User.email, password: User.password })
-      .then(res => {
-        console.log(res.data);
-      })
-      .catch(err => this.setState({ errors: err.response.data }));
+
+    this.props.loginUser(User);
+    // axios
+    //   .post('/api/users/login', { email: User.email, password: User.password })
+    //   .then(res => {
+    //     console.log(res.data);
+    //   })
+    //   .catch(err => this.setState({ errors: err.response.data }));
   };
 
   render() {
+    const { errors } = this.state;
     return (
       <div>
         <div className="signin-form">
@@ -109,5 +129,14 @@ class BootStrapLogin2 extends Component {
     );
   }
 }
-
-export default BootStrapLogin2;
+// export default BootStrapLogin2;
+const mapStateToProps = (state, ownProps) => {
+  return {
+    auth: state.auth,
+    errors: state.errors
+  };
+};
+export default connect(
+  mapStateToProps,
+  { loginUser }
+)(BootStrapLogin2);

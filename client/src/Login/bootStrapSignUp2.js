@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
+// import axios from 'axios';
+import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { registerUser } from '../actions/authAction';
 import './bootStrapLogin2.css';
@@ -16,16 +16,26 @@ class BootStrapSignUp2 extends Component {
       errors: ''
     };
   }
+  componentDidMount = () => {
+    if (this.props.auth.isAuthenticated) {
+      this.props.history.push('/dashboard');
+    }
+  };
+
+  componentWillReceiveProps = nextProps => {
+    if (nextProps.errors) {
+      console.log(nextProps.errors);
+      this.setState({ errors: nextProps.errors.error });
+    }
+  };
 
   onChange = e => {
-    const value = e.target.value;
-    console.log(e.target.value);
     this.setState({ [e.target.name]: e.target.value });
   };
 
   onSubmit = e => {
     e.preventDefault();
-    console.log(e);
+    // console.log(e);
     // confirm password match test ..
     if (this.state.password !== this.state.password2) {
       return this.setState({ errors: 'Passwords do not match' });
@@ -35,9 +45,9 @@ class BootStrapSignUp2 extends Component {
       email: this.state.email,
       password: this.state.password,
       password2: this.state.password2
-      //   password2: this.state.password2
     };
-    this.props.registerUser(newUser);
+    // we can take our history to Action through this way, its different than Andrew Mead React way.
+    this.props.registerUser(newUser, this.props.history);
     // axios
     //   .post('/api/users/register', {
     //     name: newUser.name,
@@ -59,11 +69,9 @@ class BootStrapSignUp2 extends Component {
 
   render() {
     const { errors } = this.state;
-    const { user } = this.props.auth;
     return (
       <div>
         <div className="signin-form">
-          {user ? user.name : null}
           <form onSubmit={this.onSubmit}>
             <h2>Sign Up</h2>
             <p className="hint-text">Sign in with your social media account</p>
@@ -142,9 +150,9 @@ class BootStrapSignUp2 extends Component {
                 Sign Up
               </button>
             </div>
-            {this.state.errors ? (
+            {errors ? (
               <div className="text-center small red" style={{ color: 'red' }}>
-                {this.state.errors}
+                {errors}
               </div>
             ) : (
               ''
@@ -164,11 +172,13 @@ class BootStrapSignUp2 extends Component {
 
 const mapStateToProps = (state, ownProps) => {
   return {
-    auth: state.auth
+    auth: state.auth,
+    errors: state.errors
   };
 };
 
 export default connect(
   mapStateToProps,
   { registerUser }
-)(BootStrapSignUp2);
+)(withRouter(BootStrapSignUp2));
+// we can take our history to Action through withRouter, its different than Andrew Mead React way.
