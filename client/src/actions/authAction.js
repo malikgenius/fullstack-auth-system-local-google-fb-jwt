@@ -29,7 +29,7 @@ export const registerUser = (userData, history) => dispatch => {
 export const verificationEmail = (Token, history) => dispatch => {
   axios
     .post('/api/users/verifytoken', Token)
-    .then(res => history.push('/login'))
+    .then(res => history.push('/'))
     .catch(err =>
       dispatch({
         type: GET_ERRORS,
@@ -43,7 +43,7 @@ export const setCurrentUser = decoded => ({
   type: SET_CURRENT_USER,
   payload: decoded
 });
-
+// Login Local user ..
 export const loginUser = userData => dispatch => {
   axios
     .post('/api/users/login', userData)
@@ -65,6 +65,25 @@ export const loginUser = userData => dispatch => {
         payload: err.response.data
       });
     });
+};
+// GOOGLE USER LOGIN ..
+export const loginSocialUser = token => dispatch => {
+  //   return console.log(token);
+  // save token to localstorage
+  localStorage.setItem('jwtToken', token);
+  // set it to Auth Header
+  setAuthToken(token);
+  // Decode Token with jwt-decode and add it to user object in redux store.
+  const decoded = jwt_decode(token);
+  // set current user
+  dispatch(setCurrentUser(decoded));
+};
+
+export const logoutUser = history => dispatch => {
+  localStorage.removeItem('jwtToken');
+  setAuthToken(false);
+  dispatch(setCurrentUser({}));
+  history.push('/');
 };
 
 export const loginGoogle = (accessToken, history) => dispatch => {

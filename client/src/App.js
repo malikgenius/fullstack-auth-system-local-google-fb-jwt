@@ -12,14 +12,15 @@ import FacebookOauth from './Login/FacebookOauth';
 import BootStrapLogin2 from './Login/bootStrapSocialLogin2';
 import BootStrapSignUp2 from './Login/bootStrapSignUp2';
 import VerifyToken from './verifyReset/VerifyToken';
-import DashboardTest from './Login/DashboardTest';
+import Navbar from './Login/navbar';
 export const history = createHistory();
 // Store
 const store = configureStore();
 
 // check for user
 if (localStorage.jwtToken) {
-  //Set Auth token header auth
+  //Set Auth token header auth setAuthToken function makes sure that Authorization Headers have the token.
+  // if we dont do this, token will be in localStorage only but not in headers to verify with backend.
   setAuthToken(localStorage.jwtToken);
   // decode token and get user info and exp
   const decoded = jwt_decode(localStorage.jwtToken);
@@ -38,7 +39,7 @@ class App extends Component {
             <Route path="/facebook" component={FacebookOauth} />
             <Route path="/google" component={GoogleOauth} />
             <Route path="/verifytoken" component={VerifyToken} />
-            <Route path="/dashboard" component={DashboardTest} />
+            <Route path="/dashboard" component={Navbar} />
           </div>
         </Router>
       </Provider>

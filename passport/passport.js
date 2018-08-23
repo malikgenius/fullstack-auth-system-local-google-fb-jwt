@@ -42,8 +42,8 @@ passport.use(
       // proxy: true
     },
     async (accessToken, refreshToken, profile, done) => {
-      console.log('accessToken', accessToken);
-      console.log('profile', profile);
+      // console.log('accessToken', accessToken);
+      // console.log('profile', profile);
       // Getting the Large Image substracting end part.
       const photo = profile.photos[0].value.substring(
         0,
@@ -85,6 +85,8 @@ passport.use(
     async (accessToken, refreshToken, profile, done) => {
       // console.log('accessToken', accessToken);
       // console.log('profile', profile);
+      const fbphoto = profile.photos[0].value;
+      const photo = fbphoto.replace('large', 'album');
 
       try {
         const existingUser = await User.findOne({ 'facebook.id': profile.id });
@@ -98,7 +100,7 @@ passport.use(
             id: profile.id,
             name: profile.displayName,
             email: profile.emails[0].value,
-            photo: profile.photos[0].value
+            photo
           }
         });
         await newUser.save();

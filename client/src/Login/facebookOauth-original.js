@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import FacebookLogin from 'react-facebook-login';
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
-import { loginSocialUser } from '../actions/authAction';
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import clientId from '../config/Keys';
 import axios from 'axios';
 
@@ -10,24 +8,9 @@ class FacebookOauth extends Component {
   constructor() {
     super();
     this.state = {
-      errors: ''
+      showButton: false
     };
   }
-
-  componentDidMount = () => {
-    if (this.props.auth.isAuthenticated) {
-      this.props.history.push('/dashboard');
-    }
-  };
-
-  componentWillReceiveProps = nextProps => {
-    if (nextProps.auth.isAuthenticated) {
-      this.props.history.push('/dashboard');
-    }
-    if (nextProps.errors) {
-      this.setState({ errors: nextProps.errors.error });
-    }
-  };
 
   render() {
     const responseFacebook = response => {
@@ -35,8 +18,7 @@ class FacebookOauth extends Component {
       // console.log(JSON.stringify({ access_token: responseFacebook }));
       if (access_token) {
         axios.post('/api/users/facebook', { access_token }).then(res => {
-          const token = res.data;
-          this.props.loginSocialUser(token, this.props.history);
+          console.log(res.data);
         });
       } else {
         console.log('Error: Axios couldnt get anything from Facebook');
@@ -74,13 +56,4 @@ class FacebookOauth extends Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => {
-  return {
-    auth: state.auth,
-    errors: state.errors
-  };
-};
-export default connect(
-  mapStateToProps,
-  { loginSocialUser }
-)(withRouter(FacebookOauth));
+export default FacebookOauth;

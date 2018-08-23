@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import GoogleLogin from 'react-google-login';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { loginUser } from '../actions/authAction';
+import { loginSocialUser } from '../actions/authAction';
 import clientId from '../config/Keys';
 import axios from 'axios';
 // or
@@ -15,6 +15,21 @@ class GoogleOauth extends Component {
     };
   }
 
+  componentDidMount = () => {
+    if (this.props.auth.isAuthenticated) {
+      this.props.history.push('/dashboard');
+    }
+  };
+
+  componentWillReceiveProps = nextProps => {
+    if (nextProps.auth.isAuthenticated) {
+      this.props.history.push('/dashboard');
+    }
+    if (nextProps.errors) {
+      this.setState({ errors: nextProps.errors.error });
+    }
+  };
+
   render() {
     const responseGoogle = response => {
       // console.log(response);
@@ -24,7 +39,9 @@ class GoogleOauth extends Component {
       if (access_token) {
         // this.props.loginUser(access_token, this.props.history);
         axios.post('/api/users/google', { access_token }).then(res => {
-          console.log(res.data);
+          // console.log(res.data);
+          const token = res.data;
+          this.props.loginSocialUser(token, this.props.history);
         });
       } else {
         console.log('Error: Axios couldnt get anything from Google');
@@ -61,5 +78,5 @@ const mapStateToProps = (state, ownProps) => {
 };
 export default connect(
   mapStateToProps,
-  { loginUser }
+  { loginSocialUser }
 )(withRouter(GoogleOauth));
