@@ -8,8 +8,8 @@ const jwt = require('jsonwebtoken');
 const randomstring = require('randomstring');
 //Email nodemailer config
 const nodemailer = require('nodemailer');
-const emailUser = require('../../config/Keys').emailUser;
-const emailPass = require('../../config/Keys').emailPass;
+const GmailUser = require('../../config/Keys').GmailUser;
+const GmailPass = require('../../config/Keys').GmailPass;
 
 const User = require('../../model/User');
 const secretOrKey = require('../../config/Keys').secretOrKey;
@@ -82,12 +82,11 @@ router.post('/register', (req, res) => {
           .then(user => {
             // create reusable transporter object using the default SMTP transport
             let transporter = nodemailer.createTransport({
-              host: 'smtp.office365.com',
-              port: 587,
+              service: 'gmail',
               // secure: false, // true for 465, false for other ports
               auth: {
-                user: emailUser, // generated ethereal user
-                pass: emailPass, // generated ethereal password
+                user: GmailUser, // generated ethereal user
+                pass: GmailPass, // generated ethereal password
                 requireTLS: true
               },
               tls: {
@@ -95,22 +94,20 @@ router.post('/register', (req, res) => {
               }
             });
 
-            const { name, email, secretToken } = user.local;
+            let { name, email, secretToken } = user.local;
             // Send verification Email to Users email address.
             let mailOptions = {
-              from: '"ZEELIST" <pooja@zeenah.com>', // sender address
+              from: GmailUser, // sender address
               to: email, // list of receivers
               subject: 'Verify Your Account', // Subject line
               text: `Hello ${name}`, // plain text body
               html: `<br/>
                 Thank you for registring ${name}!
                 <br/><br/>
-                Please verify your email,  copy following access token:
+                Please click on the link below to verify your Account.
                 <br/>
-                Token: <b>${secretToken}</b>
                 <br/>
-                now click on the link below and paste this access token in verification page where asked. 
-                <a href="https://localhost:3000/verifytoken">click here to open verification link</a>
+                <a href="https://localhost:3000/verifytoken/${secretToken}">click here to verify your Account</a>
                 </br></br>
                 `
             };
@@ -201,25 +198,6 @@ router.post('/login', (req, res) => {
   });
 });
 
-// Verify Local Users with secretToken
-router.post('/verifytoken', (req, res) => {
-  const verifyToken = req.body.token;
-  User.findOne({ 'local.secretToken': verifyToken.trim() }).then(user => {
-    if (!user) {
-      return res
-        .status(400)
-        .json('Invalid or Expired verification Token code.');
-      // return res.redirect('https://localhost:3000');
-    }
-    user.local.active = true;
-    user.local.secretToken = '';
-    user.save().then(
-      // res.redirect('https://localhost:3000')
-      res.json('Thank you for verifying your email, you may Login now')
-    );
-  });
-});
-
 // Google 0auth Token Login ---- passport-google-plus-token Strategy
 //https://developers.google.com/oauthplayground   to get access_token for testing.
 router.post(
@@ -248,6 +226,7 @@ router.post(
     );
   }
 );
+
 // Facebook 0auth Token Login ---- passport-google-plus-token Strategy
 // https://developers.facebook.com/tools/explorer   access_token with email
 // https://developers.facebook.com/tools/accesstoken/ --- only access_token for testing.

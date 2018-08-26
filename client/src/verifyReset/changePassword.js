@@ -1,25 +1,25 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { loginUser } from '../actions/authAction';
+import { changePassword } from '../actions/authAction';
 import './bootStrapLogin2.css';
 
-class BootStrapLogin2 extends Component {
+class ChangePassword extends Component {
   constructor(props) {
     super(props);
     // console.log(props);
     this.state = {
-      email: '',
       password: '',
+      password2: '',
       errors: ''
     };
   }
 
-  componentDidMount = () => {
-    if (this.props.auth.isAuthenticated) {
-      this.props.history.push('/dashboard');
-    }
-  };
+  // componentDidMount = () => {
+  //   if (this.props.auth.isAuthenticated) {
+  //     this.props.history.push('/dashboard');
+  //   }
+  // };
 
   componentWillReceiveProps = nextProps => {
     if (nextProps.auth.isAuthenticated) {
@@ -35,12 +35,16 @@ class BootStrapLogin2 extends Component {
 
   onSubmit = e => {
     e.preventDefault();
-    const User = {
-      email: this.state.email,
+    if (this.state.password !== this.state.password2) {
+      return this.setState({ errors: 'Passwords do not match' });
+    }
+    const Password = {
       password: this.state.password
     };
-
-    this.props.loginUser(User);
+    console.log(this.props);
+    // we can pass url parameters through history.location.pathname to axios to send it along formdata to backend.
+    // at backend we will extract req.params and req.body to check the resetToken and then reset password.
+    this.props.changePassword(Password, this.props.history);
   };
 
   render() {
@@ -49,39 +53,8 @@ class BootStrapLogin2 extends Component {
       <div>
         <div className="signin-form">
           <form onSubmit={this.onSubmit}>
-            <h2>Sign in</h2>
-            <p className="hint-text">Sign in with your social media account</p>
-            <div className="social-btn text-center">
-              <Link
-                to="/facebook"
-                className="btn btn-primary btn-lg"
-                title="Facebook"
-              >
-                <i className="fa fa-facebook" />
-              </Link>
+            <h2>Reset Password</h2>
 
-              <Link
-                to="/google"
-                className="btn btn-danger btn-lg"
-                title="Google"
-              >
-                <i className="fa fa-google" />
-              </Link>
-            </div>
-            <div className="or-seperator">
-              <b>or</b>
-            </div>
-            <div className="form-group">
-              <input
-                type="text"
-                className="form-control input-lg"
-                name="email"
-                value={this.state.email}
-                onChange={this.onChange}
-                placeholder="email"
-                required="required"
-              />
-            </div>
             <div className="form-group">
               <input
                 type="password"
@@ -89,7 +62,18 @@ class BootStrapLogin2 extends Component {
                 name="password"
                 value={this.state.password}
                 onChange={this.onChange}
-                placeholder="Password"
+                placeholder="password"
+                required="required"
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="password"
+                className="form-control input-lg"
+                name="password2"
+                value={this.state.password2}
+                onChange={this.onChange}
+                placeholder="confirm Password"
                 required="required"
               />
             </div>
@@ -108,13 +92,7 @@ class BootStrapLogin2 extends Component {
             ) : (
               ''
             )}
-            <div className="text-center small">
-              <Link to="/forgot">Forgot Your password?</Link>
-            </div>
           </form>
-          <div className="text-center small">
-            Don't have an account? <Link to="/signup">Sign up</Link>
-          </div>
         </div>
       </div>
     );
@@ -129,5 +107,5 @@ const mapStateToProps = (state, ownProps) => {
 };
 export default connect(
   mapStateToProps,
-  { loginUser }
-)(BootStrapLogin2);
+  { changePassword }
+)(withRouter(ChangePassword));

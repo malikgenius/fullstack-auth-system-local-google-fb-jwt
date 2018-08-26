@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import axios from 'axios';
 import './bootStrapLogin2.css';
 import { verificationEmail } from '../actions/authAction';
 
@@ -15,25 +14,32 @@ class VerificationToken extends Component {
     };
   }
 
-  componentDidMount = () => {
-    this.props.verificationEmail(this.props.history);
-    // axios
-    //   .post(`/api/users/${history.location.pathname}`)
-    //   .then(res => this.setState({ success: res.data }))
-    //   .catch(err =>
-    //     dispatch({
-    //       type: GET_ERRORS,
-    //       payload: err.response.data
-    //     })
-    //   );
-  };
   componentWillReceiveProps = nextProps => {
-    if (nextProps.success) {
-      this.setState({ success: nextProps.success.success });
-    }
     if (nextProps.errors) {
       this.setState({ errors: nextProps.errors.error });
     }
+  };
+
+  onChange = e => {
+    // const value = e.target.value;
+    console.log(e.target.value);
+    this.setState({ [e.target.name]: e.target.value });
+  };
+
+  onSubmit = e => {
+    e.preventDefault();
+    const Token = {
+      token: this.state.token
+    };
+    // sending to authaction with router history so history.push() will work. Andrew Mead showed different way.
+    // which is to create another component for example tokenpage and this should be tokenform etc ..
+    this.props.verificationEmail(Token, this.props.history);
+    // return console.log(Token);
+    // axios
+    //   .post('/api/users/verifytoken', { token: Token.token })
+    //   .then(res => this.setState({ success: res.data }))
+
+    //   .catch(err => this.setState({ errors: err.response.data }));
   };
 
   render() {
@@ -44,7 +50,7 @@ class VerificationToken extends Component {
             {this.state.success}
             {''}
             <Link to="/" class="alert-link">
-              click here to login
+              click here
             </Link>
             . to access your account.
           </div>
@@ -102,8 +108,7 @@ class VerificationToken extends Component {
 const mapStateToProps = (state, ownProps) => {
   return {
     auth: state.auth,
-    errors: state.errors,
-    success: state.success.success
+    errors: state.errors
   };
 };
 

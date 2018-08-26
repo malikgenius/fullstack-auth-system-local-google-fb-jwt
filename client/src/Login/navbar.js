@@ -1,10 +1,23 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
+import { Navbar, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { logoutUser } from '../actions/authAction';
 
-class Navbar extends Component {
+class Dashboard extends Component {
+  componentDidMount = () => {
+    if (!this.props.auth.isAuthenticated) {
+      this.props.history.push('/');
+    }
+  };
+  // below will check if props changes, when logged out it will trigger and redirect
+  componentWillReceiveProps = nextProps => {
+    if (!nextProps.auth.isAuthenticated) {
+      this.props.history.push('/');
+    }
+  };
+
   onLogoutClick(e) {
     e.preventDefault();
     this.props.logoutUser(this.props.history);
@@ -14,28 +27,47 @@ class Navbar extends Component {
     const { isAuthenticated, user } = this.props.auth;
 
     const authLinks = (
-      <ul className="navbar-nav ml-auto">
-        <li className="nav-item">
-          <a
-            href=""
-            onClick={this.onLogoutClick.bind(this)}
-            className="nav-link"
-          >
-            <img
-              className="rounded-circle"
-              src={user.photo}
-              alt={user.name}
-              style={{ width: '25px', marginRight: '5px' }}
-              title="You must have a Gravatar connected to your email to display an image"
-            />{' '}
-            Logout
-          </a>
-        </li>
-      </ul>
+      <NavItem>
+        <ul className="navbar-nav ml-auto">
+          <li className="NavItem">
+            {user.photo ? (
+              <a
+                href=""
+                onClick={this.onLogoutClick.bind(this)}
+                className="Link"
+              >
+                <img
+                  className="nav-rounded-circle"
+                  src={user.photo}
+                  alt={user.name}
+                  style={{ width: '25px', marginRight: '5px' }}
+                  title="You must have a Gravatar connected to your email to display an image"
+                />
+                Logout
+              </a>
+            ) : (
+              <a
+                href=""
+                onClick={this.onLogoutClick.bind(this)}
+                className="nav-link"
+              >
+                <img
+                  className="rounded-circle"
+                  src="/placeholder.jpg"
+                  alt={user.name}
+                  style={{ width: '25px', marginRight: '5px' }}
+                  title="You must have a Gravatar connected to your email to display an image"
+                />
+                Log Out
+              </a>
+            )}{' '}
+          </li>
+        </ul>
+      </NavItem>
     );
 
     const guestLinks = (
-      <ul className="navbar-nav ml-auto">
+      <ul className="Nav mlAuto">
         <li className="nav-item">
           <Link className="nav-link" to="/signup">
             Sign Up
@@ -50,33 +82,22 @@ class Navbar extends Component {
     );
 
     return (
-      <nav className="navbar navbar-expand-sm navbar-dark bg-dark mb-4">
-        <div className="container">
-          <Link className="navbar-brand" to="/">
-            DevConnector
-          </Link>
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-toggle="collapse"
-            data-target="#mobile-nav"
-          >
-            <span className="navbar-toggler-icon" />
-          </button>
-
-          <div className="collapse navbar-collapse" id="mobile-nav">
-            <ul className="navbar-nav mr-auto">
-              <li className="nav-item">
-                <Link className="nav-link" to="/profiles">
-                  {' '}
-                  Developers
-                </Link>
-              </li>
-            </ul>
-            {isAuthenticated ? authLinks : guestLinks}
-          </div>
-        </div>
-      </nav>
+      <Navbar inverse>
+        <Navbar.Header>
+          <Navbar.Brand>
+            <a href="#brand">React-Bootstrap</a>
+          </Navbar.Brand>
+          <Navbar.Toggle />
+        </Navbar.Header>
+        <Navbar.Collapse>
+          <Nav>
+            <NavItem eventKey={1} href="#">
+              Link
+            </NavItem>
+          </Nav>
+          <Nav pullRight>{isAuthenticated ? authLinks : guestLinks}</Nav>
+        </Navbar.Collapse>
+      </Navbar>
     );
   }
 }
@@ -93,4 +114,4 @@ const mapStateToProps = state => ({
 export default connect(
   mapStateToProps,
   { logoutUser }
-)(withRouter(Navbar));
+)(withRouter(Dashboard));

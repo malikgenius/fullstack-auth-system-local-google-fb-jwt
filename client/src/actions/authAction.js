@@ -1,7 +1,7 @@
 import axios from 'axios';
 import jwt_decode from 'jwt-decode';
 import setAuthToken from '../utils/setAuthToken';
-import { GET_ERRORS, GET_USER, LOGIN_USER, SET_CURRENT_USER } from './types';
+import { GET_ERRORS, SET_CURRENT_USER, GET_SUCCESS } from './types';
 
 // can use Dispatch in same functions, other way is to use axios in one function and then dispatch to other one.
 export const registerUser = (userData, history) => dispatch => {
@@ -25,10 +25,44 @@ export const registerUser = (userData, history) => dispatch => {
 };
 
 // Verification Email Process ....
-
-export const verificationEmail = (Token, history) => dispatch => {
+export const verificationEmail = history => dispatch => {
   axios
-    .post('/api/users/verifytoken', Token)
+    .post(`/api/reset/${history.location.pathname}`)
+    .then(res => history.push('/emailverified'))
+    .catch(err =>
+      dispatch({
+        type: GET_ERRORS,
+        payload: err.response.data
+      })
+    );
+};
+
+// Reset Password Process ....
+export const resetPassword = (Email, history) => dispatch => {
+  axios
+    .post('/api/reset/forgot', Email)
+    .then(res =>
+      dispatch({
+        type: GET_SUCCESS,
+        payload: res.data
+      })
+    )
+    .catch(err =>
+      dispatch({
+        type: GET_ERRORS,
+        payload: err.response.data
+      })
+    );
+};
+
+// Change Password Process ....
+export const changePassword = (Password, history) => dispatch => {
+  // return console.log(Password);
+  axios
+    // sending URL params along with post reqest to backend, if i didnt have history in react, couldnt get this.
+    // should always use withRouter to get all these values from react router
+    .post(`/api/reset/${history.location.pathname}`, Password)
+    // .then(res => {console.log(res) });
     .then(res => history.push('/'))
     .catch(err =>
       dispatch({
@@ -49,7 +83,6 @@ export const loginUser = userData => dispatch => {
     .post('/api/users/login', userData)
     .then(res => {
       const { token } = res.data;
-      console.log(token);
       // save token to localstorage
       localStorage.setItem('jwtToken', token);
       // set it to Auth Header
@@ -79,11 +112,11 @@ export const loginSocialUser = token => dispatch => {
   dispatch(setCurrentUser(decoded));
 };
 
-export const logoutUser = history => dispatch => {
+export const logoutUser = () => dispatch => {
   localStorage.removeItem('jwtToken');
   setAuthToken(false);
   dispatch(setCurrentUser({}));
-  history.push('/');
+  //   history.push('/');
 };
 
 export const loginGoogle = (accessToken, history) => dispatch => {

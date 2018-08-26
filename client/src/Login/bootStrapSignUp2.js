@@ -24,7 +24,7 @@ class BootStrapSignUp2 extends Component {
 
   componentWillReceiveProps = nextProps => {
     if (nextProps.errors) {
-      console.log(nextProps.errors);
+      // console.log(nextProps.errors);
       this.setState({ errors: nextProps.errors.error });
     }
   };
@@ -158,7 +158,7 @@ class BootStrapSignUp2 extends Component {
               ''
             )}
             <div className="text-center small">
-              <a href="#">Forgot Your password?</a>
+              <Link to="/forgot">Forgot Your password?</Link>
             </div>
           </form>
           <div className="text-center small">

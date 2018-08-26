@@ -1,5 +1,5 @@
 import isEmpty from '../validation/is-empty.js';
-import { GET_USER, LOGIN_USER, SET_CURRENT_USER } from '../actions/types';
+import { GET_USER, SET_CURRENT_USER } from '../actions/types';
 const initialState = { isAuthenticated: false, user: {} };
 
 export default (state = initialState, action) => {

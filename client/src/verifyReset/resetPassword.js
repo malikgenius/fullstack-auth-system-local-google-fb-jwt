@@ -1,32 +1,19 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import axios from 'axios';
 import './bootStrapLogin2.css';
-import { verificationEmail } from '../actions/authAction';
+import { resetPassword } from '../actions/authAction';
 
-class VerificationToken extends Component {
+class ResetPassword extends Component {
   constructor() {
     super();
     this.state = {
-      token: '',
+      email: '',
       success: '',
       errors: ''
     };
   }
 
-  componentDidMount = () => {
-    this.props.verificationEmail(this.props.history);
-    // axios
-    //   .post(`/api/users/${history.location.pathname}`)
-    //   .then(res => this.setState({ success: res.data }))
-    //   .catch(err =>
-    //     dispatch({
-    //       type: GET_ERRORS,
-    //       payload: err.response.data
-    //     })
-    //   );
-  };
   componentWillReceiveProps = nextProps => {
     if (nextProps.success) {
       this.setState({ success: nextProps.success.success });
@@ -36,32 +23,51 @@ class VerificationToken extends Component {
     }
   };
 
+  onChange = e => {
+    // const value = e.target.value;
+    console.log(e.target.value);
+    this.setState({ [e.target.name]: e.target.value });
+  };
+
+  onSubmit = e => {
+    e.preventDefault();
+    const Email = {
+      email: this.state.email
+    };
+    // sending to authaction with router history so history.push() will work. Andrew Mead showed different way.
+    // which is to create another component for example tokenpage and this should be tokenform etc ..
+    this.props.resetPassword(Email, this.props.history);
+    // return console.log(Token);
+    // axios
+    //   .post('/api/users/verifytoken', { token: Token.token })
+    //   .then(res => this.setState({ success: res.data }))
+
+    //   .catch(err => this.setState({ errors: err.response.data }));
+  };
+
   render() {
     return (
       <div>
         {this.state.success && (
-          <div class="alert alert-success" role="alert">
+          <div className="alert alert-success" role="alert">
             {this.state.success}
             {''}
-            <Link to="/" class="alert-link">
-              click here to login
+            <Link to="/" className="alert-link">
+              click here
             </Link>
             . to access your account.
           </div>
         )}
         <div className="signin-form">
-          <div className="alert alert-light" role="alert" size="large">
-            <h4>please check your email for verification Token,</h4>
-          </div>
           <form onSubmit={this.onSubmit}>
             <div className="form-group">
               <input
                 type="text"
                 className="form-control input-lg"
-                name="token"
+                name="email"
                 value={this.state.email}
                 onChange={this.onChange}
-                placeholder="verification code"
+                placeholder="email"
                 required="required"
               />
             </div>
@@ -71,7 +77,7 @@ class VerificationToken extends Component {
                 type="submit"
                 className="btn btn-success btn-lg btn-block signup-btn"
               >
-                Verify
+                Password Reset
               </button>
             </div>
 
@@ -86,9 +92,7 @@ class VerificationToken extends Component {
             {this.state.success && (
               <div className="text-center small red">{this.state.success}</div>
             )}
-            <div className="text-center small">
-              <Link to="/resendemail">resend verification code</Link>
-            </div>
+
             <div className="text-center small">
               <Link to="/">Log in</Link>
             </div>
@@ -103,11 +107,11 @@ const mapStateToProps = (state, ownProps) => {
   return {
     auth: state.auth,
     errors: state.errors,
-    success: state.success.success
+    success: state.success
   };
 };
 
 export default connect(
   mapStateToProps,
-  { verificationEmail }
-)(withRouter(VerificationToken));
+  { resetPassword }
+)(withRouter(ResetPassword));

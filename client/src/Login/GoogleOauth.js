@@ -32,14 +32,11 @@ class GoogleOauth extends Component {
 
   render() {
     const responseGoogle = response => {
-      // console.log(response);
+      // return console.log(response);
       const access_token = response.Zi.access_token;
-      // console.log(JSON.stringify({ access_token: access_token }));
-      // console.log(access_token);
       if (access_token) {
         // this.props.loginUser(access_token, this.props.history);
         axios.post('/api/users/google', { access_token }).then(res => {
-          // console.log(res.data);
           const token = res.data;
           this.props.loginSocialUser(token, this.props.history);
         });
