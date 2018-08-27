@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { changePassword } from '../actions/authAction';
-import './bootStrapLogin2.css';
+// import './bootStrapLogin2.css';
 
 class ChangePassword extends Component {
   constructor(props) {
@@ -22,9 +22,9 @@ class ChangePassword extends Component {
   // };
 
   componentWillReceiveProps = nextProps => {
-    if (nextProps.auth.isAuthenticated) {
-      this.props.history.push('/dashboard');
-    }
+    // if (nextProps.auth.isAuthenticated) {
+    //   this.props.history.push('/dashboard');
+    // }
     if (nextProps.errors) {
       this.setState({ errors: nextProps.errors.error });
     }
@@ -41,7 +41,7 @@ class ChangePassword extends Component {
     const Password = {
       password: this.state.password
     };
-    console.log(this.props);
+    // console.log(this.props);
     // we can pass url parameters through history.location.pathname to axios to send it along formdata to backend.
     // at backend we will extract req.params and req.body to check the resetToken and then reset password.
     this.props.changePassword(Password, this.props.history);
@@ -82,7 +82,7 @@ class ChangePassword extends Component {
                 type="submit"
                 className="btn btn-success btn-lg btn-block signup-btn"
               >
-                Sign in
+                Change Password
               </button>
             </div>
             {this.state.errors ? (
@@ -98,7 +98,7 @@ class ChangePassword extends Component {
     );
   }
 }
-// export default BootStrapLogin2;
+
 const mapStateToProps = (state, ownProps) => {
   return {
     auth: state.auth,

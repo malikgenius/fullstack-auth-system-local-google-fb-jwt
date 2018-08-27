@@ -25,7 +25,7 @@ class EmailVerified extends Component {
   render() {
     return (
       <div>
-        <Alert color="success">
+        <Alert color="light" style={{ marginTop: '3%' }}>
           Your account is verified successfuly, Please click on the link{' '}
           <Link to="/">Log in</Link> to get to your account.
         </Alert>

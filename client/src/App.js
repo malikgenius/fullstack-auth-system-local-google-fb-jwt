@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+
 // Set Current User persist
 import jwt_decode from 'jwt-decode';
 import setAuthToken from './utils/setAuthToken';
@@ -13,10 +14,11 @@ import BootStrapLogin2 from './Login/bootStrapSocialLogin2';
 import BootStrapSignUp2 from './Login/bootStrapSignUp2';
 import VerifyToken from './verifyReset/VerifyToken';
 import ResetPassword from './verifyReset/resetPassword';
-import ChangePassword from './verifyReset/changePassword';
+import ChangePassword from './verifyReset/ChangePassword';
 import EmailVerified from './verifyReset/EmailVerified';
-import Navbar from './Login/navbar';
-export const history = createHistory();
+import Header from './Login/Header';
+import DashBoard from './Components/Dashboard';
+// export const history = createHistory();
 // Store
 const store = configureStore();
 
@@ -43,15 +45,19 @@ class App extends Component {
       <Provider store={store}>
         <Router>
           <div>
-            <Route exact path="/" component={BootStrapLogin2} />
-            <Route path="/signup" component={BootStrapSignUp2} />
-            <Route path="/facebook" component={FacebookOauth} />
-            <Route path="/google" component={GoogleOauth} />
-            <Route path="/verifytoken" component={VerifyToken} />
-            <Route path="emailverified" component={EmailVerified} />
-            <Route path="/forgot" component={ResetPassword} />
-            <Route path="/changePassword" component={ChangePassword} />
-            <Route path="/dashboard" component={Navbar} />
+            <Header />
+            <Switch>
+              <Route exact path="/" component={BootStrapLogin2} />
+              <Route path="/signup" component={BootStrapSignUp2} />
+              <Route path="/facebook" component={FacebookOauth} />
+              <Route path="/google" component={GoogleOauth} />
+              <Route path="/verifytoken" component={VerifyToken} />
+              <Route path="/emailverified" component={EmailVerified} />
+              <Route path="/forgot" component={ResetPassword} />
+              <Route path="/changepassword" component={ChangePassword} />
+              <Route path="/dashboard" component={DashBoard} />
+              {/* <Route path="/header" component={Header} /> */}
+            </Switch>
           </div>
         </Router>
       </Provider>

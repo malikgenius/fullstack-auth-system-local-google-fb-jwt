@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
+
 import './bootStrapLogin2.css';
 import { resetPassword } from '../actions/authAction';
 
@@ -55,7 +56,6 @@ class ResetPassword extends Component {
             <Link to="/" className="alert-link">
               click here
             </Link>
-            . to access your account.
           </div>
         )}
         <div className="signin-form">
@@ -92,10 +92,6 @@ class ResetPassword extends Component {
             {this.state.success && (
               <div className="text-center small red">{this.state.success}</div>
             )}
-
-            <div className="text-center small">
-              <Link to="/">Log in</Link>
-            </div>
           </form>
         </div>
       </div>

@@ -83,8 +83,8 @@ passport.use(
       // proxy: true
     },
     async (accessToken, refreshToken, profile, done) => {
-      // console.log('accessToken', accessToken);
-      // console.log('profile', profile);
+      console.log('accessToken', accessToken);
+      console.log('profile', profile);
       const fbphoto = profile.photos[0].value;
       const photo = fbphoto.replace('large', 'album');
 

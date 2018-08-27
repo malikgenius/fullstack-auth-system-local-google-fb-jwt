@@ -65,59 +65,71 @@ router.post('/register', (req, res) => {
         photo
       }
     });
-    // bcrypt encryption will be done in User Model in pre method.
-    const secretToken = randomstring.generate();
-    newUser.local.secretToken = secretToken;
-    // Active Property False, till the user verify email.
-    newUser.local.active = false;
-    newUser
-      .save()
-      .then(user => {
-        // create reusable transporter object using the default SMTP transport
-        let transporter = nodemailer.createTransport({
-          service: 'gmail',
-          // secure: false, // true for 465, false for other ports
-          auth: {
-            user: GmailUser, // generated ethereal user
-            pass: GmailPass, // generated ethereal password
-            requireTLS: true
-          },
-          tls: {
-            ciphers: 'SSLv3'
-          }
-        });
 
-        let { name, email, secretToken } = user.local;
-        // Send verification Email to Users email address.
-        let mailOptions = {
-          from: GmailUser, // sender address
-          to: email, // list of receivers
-          subject: 'Verify Your Account', // Subject line
-          text: `Hello ${name}`, // plain text body
-          html: `<br/>
-                  Thank you for registring ${name}!
-                  <br/><br/>
-                  Please click on the link below to verify your Account.
-                  <br/>
-                  <br/>
-                  <a href="https://localhost:3000/verifytoken/${secretToken}">click here to verify your Account</a>
-                  </br></br>
-                  `
-        };
+    // lets encrypt our password with bcrypt, always use newUser.local.xxxxx to reach nested user property in local.
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(newUser.local.password, salt, (err, hash) => {
+        if (err) throw err;
+        newUser.local.password = hash;
+        // Generate Verification Email Token to be saved in DB. will send this to user via Email.
+        const secretToken = randomstring.generate();
+        newUser.local.secretToken = secretToken;
+        // Active Property False, till the user verify email.
+        newUser.local.active = false;
 
-        transporter.sendMail(mailOptions, (error, info) => {
-          if (error) {
-            return console.log(error);
-          }
-          console.log('Message sent: %s', info.messageId);
-          // Preview only available when sending through an Ethereal account
-          console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-        });
-        return res.json('Success');
-      })
-      .catch(err => {
-        console.log(err);
+        newUser
+          .save()
+          .then(user => {
+            // create reusable transporter object using the default SMTP transport
+            let transporter = nodemailer.createTransport({
+              service: 'gmail',
+              // secure: false, // true for 465, false for other ports
+              auth: {
+                user: GmailUser, // generated ethereal user
+                pass: GmailPass, // generated ethereal password
+                requireTLS: true
+              },
+              tls: {
+                ciphers: 'SSLv3'
+              }
+            });
+
+            let { name, email, secretToken } = user.local;
+            // Send verification Email to Users email address.
+            let mailOptions = {
+              from: GmailUser, // sender address
+              to: email, // list of receivers
+              subject: 'Verify Your Account', // Subject line
+              text: `Hello ${name}`, // plain text body
+              html: `<br/>
+                Thank you for registring ${name}!
+                <br/><br/>
+                Please click on the link below to verify your Account.
+                <br/>
+                <br/>
+                <a href="https://localhost:3000/verifytoken/${secretToken}">click here to verify your Account</a>
+                </br></br>
+                `
+            };
+
+            transporter.sendMail(mailOptions, (error, info) => {
+              if (error) {
+                return console.log(error);
+              }
+              console.log('Message sent: %s', info.messageId);
+              // Preview only available when sending through an Ethereal account
+              console.log(
+                'Preview URL: %s',
+                nodemailer.getTestMessageUrl(info)
+              );
+            });
+            return res.json('Success');
+          })
+          .catch(err => {
+            console.log(err);
+          });
       });
+    });
   });
 });
 

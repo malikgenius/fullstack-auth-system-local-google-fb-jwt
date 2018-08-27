@@ -2,19 +2,12 @@ const express = require('express');
 const router = express.Router();
 const Joi = require('joi');
 const passport = require('passport');
-const JwtStrategy = require('passport-jwt').Strategy;
-const jwt = require('jsonwebtoken');
 const randomstring = require('randomstring');
-
 //Email nodemailer config
 const nodemailer = require('nodemailer');
 const GmailUser = require('../../config/Keys').GmailUser;
 const GmailPass = require('../../config/Keys').GmailPass;
-
 const User = require('../../model/User');
-const secretOrKey = require('../../config/Keys').secretOrKey;
-const registerValidation = require('./joi-validation/joi-register');
-const loginValidation = require('./joi-validation/joi-login');
 
 // Verify Local Users with secretToken
 router.post('/verifytoken/:token', (req, res) => {
@@ -34,9 +27,19 @@ router.post('/verifytoken/:token', (req, res) => {
 });
 
 // Reset Password Send Token and redirect user to reset password page.
-
 router.post('/forgot', (req, res) => {
-  const email = req.body.email;
+  let email = req.body.email;
+  // Joi Validation
+  const schema = {
+    email: Joi.string()
+      .email()
+      .required()
+  };
+  let Validate = Joi.validate(req.body, schema);
+  if (Validate.error) {
+    return res.status(400).json(Validate.error.details[0].message);
+  }
+
   User.findOne({ 'local.email': email }).then(user => {
     if (!user) {
       return res.status(400).json('Email is not regirsted');
@@ -104,24 +107,43 @@ router.post('/forgot', (req, res) => {
 });
 
 //Change Password ... check Axios how to get params into Actions via history method.
+// Hashing will be done in User Model.
 router.post('/changepassword/:token', (req, res) => {
   const resetToken = req.params.token;
-  console.log(resetToken);
+  const newPassword = req.body.password;
+  // Joi Validation
+  const schema = {
+    password: Joi.string()
+      .regex(/^[a-zA-Z-0-9]{6,50}$/)
+      .required()
+  };
+  let Validate = Joi.validate(req.body, schema);
+  if (Validate.error) {
+    return res.status(400).json(Validate.error.details[0].message);
+  }
+
   User.findOne({
     'local.resetPasswordToken': resetToken,
     'local.resetPasswordExpires': { $gt: Date.now() }
   }).then(user => {
     if (!user) {
+      console.log('Invalid or Expired Token');
       return res.status(404).json('Invalid or Expired Token');
     }
-    console.log(user.local.resetPasswordExpires);
-    console.log(Date.now());
-    if (user.local.resetPasswordExpires > Date.now) {
-      return res.status(400).json('reset token expired');
-    }
-    return res.json(req.params.resetToken);
+    console.log(user);
+    user.local.password = newPassword;
+    user.local.resetPasswordToken = 'undefined';
+    user.local.resetPasswordExpires = '';
+    user
+      .save()
+      .then(err => {
+        res.json('Password Changed Successfully, Please go to login page.');
+      })
+      .catch(err => {
+        console.log(err);
+        res.status(400).json('Something went wrong, please try again later');
+      });
   });
-
   // res.status(200).json('Got your Passoword');
 });
 

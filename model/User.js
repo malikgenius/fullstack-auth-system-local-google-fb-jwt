@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const Schema = mongoose.Schema;
 
@@ -69,6 +70,32 @@ const UserSchema = Schema({
     photo: {
       type: String
     }
+  }
+});
+
+// Hashing Password ...
+
+UserSchema.pre('save', function userSchemaPre(next) {
+  const user = this;
+  if (user.method === 'local') {
+    if (this.isModified('local.password') || this.isNew) {
+      bcrypt.genSalt(10, (err, salt) => {
+        if (err) {
+          return next(err);
+        }
+        bcrypt.hash(user.local.password, salt, (hashErr, hash) => {
+          if (hashErr) {
+            return next(hashErr);
+          }
+          user.local.password = hash;
+          next();
+        });
+      });
+    } else {
+      return next();
+    }
+  } else {
+    next();
   }
 });
 

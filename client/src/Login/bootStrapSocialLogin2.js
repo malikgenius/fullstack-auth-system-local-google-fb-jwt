@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import { Alert } from 'reactstrap';
 import { connect } from 'react-redux';
 import { loginUser } from '../actions/authAction';
 import './bootStrapLogin2.css';
@@ -72,6 +73,12 @@ class BootStrapLogin2 extends Component {
               <b>or</b>
             </div>
             <div className="form-group">
+              {/* <Input
+                type="email"
+                name="email"
+                id="exampleEmail"
+                placeholder="with a placeholder"
+              /> */}
               <input
                 type="text"
                 className="form-control input-lg"

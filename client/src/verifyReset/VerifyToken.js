@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { Alert } from 'reactstrap';
 import axios from 'axios';
-import './bootStrapLogin2.css';
+// import './bootStrapLogin2.css';
 import { verificationEmail } from '../actions/authAction';
 
 class VerificationToken extends Component {
@@ -49,50 +50,11 @@ class VerificationToken extends Component {
             . to access your account.
           </div>
         )}
-        <div className="signin-form">
-          <div className="alert alert-light" role="alert" size="large">
-            <h4>please check your email for verification Token,</h4>
-          </div>
-          <form onSubmit={this.onSubmit}>
-            <div className="form-group">
-              <input
-                type="text"
-                className="form-control input-lg"
-                name="token"
-                value={this.state.email}
-                onChange={this.onChange}
-                placeholder="verification code"
-                required="required"
-              />
-            </div>
-
-            <div className="form-group">
-              <button
-                type="submit"
-                className="btn btn-success btn-lg btn-block signup-btn"
-              >
-                Verify
-              </button>
-            </div>
-
-            {this.state.errors ? (
-              <div className="text-center small red" style={{ color: 'red' }}>
-                {this.state.errors}
-              </div>
-            ) : (
-              ''
-            )}
-
-            {this.state.success && (
-              <div className="text-center small red">{this.state.success}</div>
-            )}
-            <div className="text-center small">
-              <Link to="/resendemail">resend verification code</Link>
-            </div>
-            <div className="text-center small">
-              <Link to="/">Log in</Link>
-            </div>
-          </form>
+        <div className="container" style={{ marginTop: '5%' }}>
+          <Alert color="light">
+            Thanks for registering, please check your email for verification
+            link{' '}
+          </Alert>
         </div>
       </div>
     );
